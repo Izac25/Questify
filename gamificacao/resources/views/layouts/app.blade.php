@@ -29,7 +29,7 @@
     /* CONTAINER */
     .container {
         width: 900px;
-        height: 480px;
+         min-height: 480px;
         display: flex;
         border-radius: 16px;
         overflow: hidden;
@@ -58,7 +58,7 @@
     }
 
     .input-group {
-        margin-bottom: 25px;
+        margin-bottom: 18px;
     }
 
     input {
@@ -131,6 +131,44 @@
         font-size: 16px;
         opacity: 0.85;
     }
+
+    /* LINK CADASTRO */
+.register-link {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.register-link a {
+    color: #ffffff; 
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.register-link a:hover {
+    color: #e9d5ff;
+    text-shadow: 0 0 8px rgba(192,132,252,0.8);
+}
+
+.password-info {
+    display: block;
+    padding-left: 12px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+}
+
+.success-message {
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.4);
+    color: #86efac;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+}
 
 </style>
 
