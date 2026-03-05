@@ -30,7 +30,7 @@
             <div class="input-group">
                 <input 
                     type="password" 
-                    name="password"
+                    name="senha"
                     placeholder="Password"
                     required
                 >
