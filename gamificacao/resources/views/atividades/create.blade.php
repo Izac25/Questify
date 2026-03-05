@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
-@section('title', 'Criar Turma')
+@section('title', 'Criar Atividade')
 @section('content')
 
 <div class="container" style="flex-direction: column; padding: 50px 45px; min-height: 480px; width: 900px;">
 
     <div style="margin-bottom: 30px;">
-        <h2 style="font-family: 'Orbitron', sans-serif; color: #a855f7; letter-spacing: 2px; font-size: 24px;">Nova Turma</h2>
+        <h2 style="font-family: 'Orbitron', sans-serif; color: #a855f7; letter-spacing: 2px; font-size: 24px;">Nova Atividade</h2>
     </div>
 
     @if ($errors->any())
@@ -16,24 +16,21 @@
         </div>
     @endif
 
-    <form method="POST" action="/turmas" style="max-width: 500px;">
+    <form method="POST" action="/atividades" style="max-width: 500px;">
         @csrf
+
         <div class="input-group">
-            <input
-                type="text"
-                name="nome"
-                placeholder="Nome da Turma"
-                required
-            >
+            <input type="text" name="titulo" placeholder="Título da Atividade" required>
         </div>
+
         <div class="input-group">
-            <input
-                type="text"
-                name="sala"
-                placeholder="Sala"
-                required
-            >
+            <textarea name="descricao" placeholder="Descrição (opcional)" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none; resize: vertical; min-height: 100px;"></textarea>
         </div>
+
+        <div class="input-group">
+            <input type="number" name="pontos" placeholder="Pontos" min="0" required>
+        </div>
+
         <div class="input-group">
             <select name="turno" required style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
                 <option value="" style="background: #1e1b4b;">Selecione o Turno</option>
@@ -43,10 +40,15 @@
             </select>
         </div>
 
-        <button type="submit">CRIAR TURMA</button>
+        <div class="input-group">
+            <input type="date" name="data_limite" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
+            <small class="password-info">Data limite (opcional)</small>
+        </div>
+
+        <button type="submit">CRIAR ATIVIDADE</button>
 
         <div style="margin-top: 20px;">
-            <a href="/turmas" style="color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px;">← Voltar</a>
+            <a href="/atividades" style="color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px;">← Voltar</a>
         </div>
     </form>
 

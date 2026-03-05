@@ -15,11 +15,17 @@ class Instrutor extends Authenticatable
     protected $fillable = [
         'nome',
         'email',
-        'senha'
+        'senha',
+        'foto',
+        'turnos'
     ];
 
     protected $hidden = [
         'senha'
+    ];
+
+    protected $casts = [
+        'turnos' => 'array'
     ];
 
     public function getAuthPassword()
@@ -27,7 +33,6 @@ class Instrutor extends Authenticatable
         return $this->senha;
     }
 
-    // Instrutor tem muitas Turmas
     public function turmas()
     {
         return $this->hasMany(Turma::class, 'fk_id_instrutor', 'id_instrutor');

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 @section('title', 'Turmas')
 @section('content')
 <div class="container" style="flex-direction: column; padding: 50px 45px; min-height: 480px; width: 900px;">

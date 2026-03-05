@@ -4,23 +4,18 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Aluno extends Authenticatable
+class Admin extends Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'alunos';
-    protected $primaryKey = 'id_aluno';
+    protected $table = 'admins';
+    protected $primaryKey = 'id_admin';
     public $timestamps = false;
 
     protected $fillable = [
         'nome',
         'email',
         'senha',
-        'turno',
-        'fk_id_turma',
-        'pontos',
-        'pontos_comportamento',
-        'frequencia',
         'foto'
     ];
 
@@ -31,10 +26,5 @@ class Aluno extends Authenticatable
     public function getAuthPassword()
     {
         return $this->senha;
-    }
-
-    public function turma()
-    {
-        return $this->belongsTo(Turma::class, 'fk_id_turma', 'id_turma');
     }
 }
