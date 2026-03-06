@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    // Dashboard do admin
     public function dashboard()
     {
         $totalAlunos = Aluno::count();
@@ -20,14 +19,12 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('totalAlunos', 'totalInstrutores', 'totalTurmas'));
     }
 
-    // Listar instrutores
     public function instrutores()
     {
         $instrutores = Instrutor::all();
         return view('admin.instrutores', compact('instrutores'));
     }
 
-    // Criar instrutor
     public function criarInstrutor(Request $request)
     {
         $request->validate([
@@ -45,7 +42,6 @@ class AdminController extends Controller
         return redirect('/admin/instrutores')->with('success', 'Instrutor criado com sucesso!');
     }
 
-    // Deletar instrutor
     public function deletarInstrutor($id)
     {
         $instrutor = Instrutor::findOrFail($id);
@@ -53,7 +49,6 @@ class AdminController extends Controller
         return redirect('/admin/instrutores')->with('success', 'Instrutor deletado com sucesso!');
     }
 
-    // Listar alunos
     public function alunos()
     {
         $alunos = Aluno::with('turma')->get();
@@ -61,7 +56,6 @@ class AdminController extends Controller
         return view('admin.alunos', compact('alunos', 'turmas'));
     }
 
-    // Mover aluno de sala
     public function moverAluno(Request $request, $id)
     {
         $request->validate([
@@ -79,11 +73,71 @@ class AdminController extends Controller
         return redirect('/admin/alunos')->with('success', 'Aluno movido com sucesso!');
     }
 
-    // Deletar aluno
     public function deletarAluno($id)
     {
         $aluno = Aluno::findOrFail($id);
         $aluno->delete();
         return redirect('/admin/alunos')->with('success', 'Aluno deletado com sucesso!');
+    }
+
+    // Turmas
+    public function turmas()
+    {
+        $turmas = Turma::with('instrutor')->get();
+        $instrutores = Instrutor::all();
+        return view('admin.turmas', compact('turmas', 'instrutores'));
+    }
+
+    public function criarTurma(Request $request)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'sala' => 'required|string|max:255',
+            'turno' => 'required|string',
+            'fk_id_instrutor' => 'required|exists:instrutors,id_instrutor',
+        ]);
+
+        Turma::create([
+            'nome' => $request->nome,
+            'sala' => $request->sala,
+            'turno' => $request->turno,
+            'fk_id_instrutor' => $request->fk_id_instrutor,
+        ]);
+
+        return redirect('/admin/turmas')->with('success', 'Turma criada com sucesso!');
+    }
+
+    public function editarTurma($id)
+    {
+        $turma = Turma::findOrFail($id);
+        $instrutores = Instrutor::all();
+        return view('admin.turmas_edit', compact('turma', 'instrutores'));
+    }
+
+    public function atualizarTurma(Request $request, $id)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'sala' => 'required|string|max:255',
+            'turno' => 'required|string',
+            'fk_id_instrutor' => 'required|exists:instrutors,id_instrutor',
+        ]);
+
+        $turma = Turma::findOrFail($id);
+        $turma->update([
+            'nome' => $request->nome,
+            'sala' => $request->sala,
+            'turno' => $request->turno,
+            'fk_id_instrutor' => $request->fk_id_instrutor,
+        ]);
+
+        return redirect('/admin/turmas')->with('success', 'Turma atualizada com sucesso!');
+    }
+
+    public function deletarTurma($id)
+    {
+        $turma = Turma::findOrFail($id);
+        $turma->delete();
+        return redirect('/admin/turmas')->with('success', 'Turma deletada com sucesso!');
     }
 }

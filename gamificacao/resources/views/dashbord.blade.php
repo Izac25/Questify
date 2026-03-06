@@ -142,12 +142,12 @@
             </div>
 
             <script>
-                const rankings = ['ranking-turno', 'ranking-sala', 'ranking-comportamento'];
-                let atual = 0;
+                const rankingIds = ['ranking-turno', 'ranking-sala', 'ranking-comportamento'];
+                let rankAtual = 0;
                 setInterval(() => {
-                    document.getElementById(rankings[atual]).style.display = 'none';
-                    atual = (atual + 1) % rankings.length;
-                    document.getElementById(rankings[atual]).style.display = 'block';
+                    document.getElementById(rankingIds[rankAtual]).style.display = 'none';
+                    rankAtual = (rankAtual + 1) % rankingIds.length;
+                    document.getElementById(rankingIds[rankAtual]).style.display = 'block';
                 }, 5000);
             </script>
         @endif
@@ -178,6 +178,27 @@
                         <button style="width: 100%; padding: 8px; margin-top: 0; font-size: 12px;">Marcar como Entregue</button>
                     </form>
                 @endif
+            </div>
+            @endforeach
+        @endif
+
+        {{-- Histórico de comportamento --}}
+        @if(isset($meuHistorico) && $meuHistorico->isNotEmpty())
+            <h3 style="font-family: 'Orbitron', sans-serif; color: #a855f7; font-size: 14px; letter-spacing: 1px; margin-top: 10px;">😊 COMPORTAMENTO</h3>
+            @foreach($meuHistorico as $comp)
+            <div style="background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-size: 12px; font-family: 'Orbitron', sans-serif;">{{ $comp->motivo }}</span>
+                    @if($comp->pontos < 0)
+                        <span style="font-size: 13px; color: #f87171; font-family: 'Orbitron', sans-serif;">{{ $comp->pontos }} pts</span>
+                    @else
+                        <span style="font-size: 13px; color: #34d399; font-family: 'Orbitron', sans-serif;">+{{ $comp->pontos }} pts</span>
+                    @endif
+                </div>
+                @if($comp->motivo_livre)
+                    <div style="font-size: 11px; opacity: 0.6;">{{ $comp->motivo_livre }}</div>
+                @endif
+                <div style="font-size: 11px; opacity: 0.4; margin-top: 4px;">{{ $comp->created_at ? \Carbon\Carbon::parse($comp->created_at)->format('d/m/Y') : '' }}</div>
             </div>
             @endforeach
         @endif

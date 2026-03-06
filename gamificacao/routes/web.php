@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\AtividadeController;
 use App\Http\Controllers\ComportamentoController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ChamadaController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -52,7 +54,12 @@ Route::get('/dashboard', function () {
             ->pluck('fk_id_atividade')
             ->toArray();
 
-        return view('dashbord', compact('rankTurno', 'rankSala', 'rankComportamento', 'atividades', 'minhasEntregas'));
+        $meuHistorico = \App\Models\Comportamento::where('fk_id_aluno', $aluno->id_aluno)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('dashbord', compact('rankTurno', 'rankSala', 'rankComportamento', 'atividades', 'minhasEntregas', 'meuHistorico'));
     }
 
     return view('dashbord', [
@@ -61,29 +68,31 @@ Route::get('/dashboard', function () {
         'rankComportamento' => collect(),
         'atividades' => collect(),
         'minhasEntregas' => [],
+        'meuHistorico' => collect(),
     ]);
 })->middleware('auth:web,instrutor');
 
-// Turmas (só instrutor)
-Route::middleware('auth:instrutor')->group(function () {
+// Turmas (instrutor e admin)
+Route::middleware('auth:instrutor,admin')->group(function () {
     Route::get('/turmas', [TurmaController::class, 'index']);
     Route::get('/turmas/criar', [TurmaController::class, 'create']);
     Route::post('/turmas', [TurmaController::class, 'store']);
     Route::get('/turmas/{id}/editar', [TurmaController::class, 'edit']);
     Route::put('/turmas/{id}', [TurmaController::class, 'update']);
     Route::delete('/turmas/{id}', [TurmaController::class, 'destroy']);
+    Route::get('/turmas/{id}', [TurmaController::class, 'show']);
 });
 
-// Alunos (só instrutor)
-Route::middleware('auth:instrutor')->group(function () {
+// Alunos (instrutor e admin)
+Route::middleware('auth:instrutor,admin')->group(function () {
     Route::get('/alunos', [AlunoController::class, 'index']);
     Route::get('/alunos/{id}/editar', [AlunoController::class, 'edit']);
     Route::put('/alunos/{id}', [AlunoController::class, 'update']);
     Route::delete('/alunos/{id}', [AlunoController::class, 'destroy']);
 });
 
-// Atividades (só instrutor)
-Route::middleware('auth:instrutor')->group(function () {
+// Atividades (instrutor e admin)
+Route::middleware('auth:instrutor,admin')->group(function () {
     Route::get('/atividades', [AtividadeController::class, 'index']);
     Route::get('/atividades/criar', [AtividadeController::class, 'create']);
     Route::post('/atividades', [AtividadeController::class, 'store']);
@@ -92,6 +101,12 @@ Route::middleware('auth:instrutor')->group(function () {
     Route::post('/entregas/{id}/confirmar', [AtividadeController::class, 'confirmar']);
     Route::post('/entregas/{id}/presenca', [AtividadeController::class, 'marcarPresenca']);
     Route::post('/comportamento', [ComportamentoController::class, 'store']);
+});
+
+// Chamada (instrutor e admin)
+Route::middleware('auth:instrutor,admin')->group(function () {
+    Route::get('/chamada/{id_turma}', [ChamadaController::class, 'index']);
+    Route::post('/chamada/{id_turma}', [ChamadaController::class, 'store']);
 });
 
 // Entregar atividade (só aluno)
@@ -120,4 +135,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/alunos', [AdminController::class, 'alunos']);
     Route::put('/admin/alunos/{id}/mover', [AdminController::class, 'moverAluno']);
     Route::delete('/admin/alunos/{id}', [AdminController::class, 'deletarAluno']);
+    Route::get('/admin/turmas', [AdminController::class, 'turmas']);
+    Route::post('/admin/turmas', [AdminController::class, 'criarTurma']);
+    Route::get('/admin/turmas/{id}/editar', [AdminController::class, 'editarTurma']);
+    Route::put('/admin/turmas/{id}', [AdminController::class, 'atualizarTurma']);
+    Route::delete('/admin/turmas/{id}', [AdminController::class, 'deletarTurma']);
 });

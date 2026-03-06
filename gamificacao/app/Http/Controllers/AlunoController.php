@@ -9,25 +9,29 @@ use Illuminate\Support\Facades\Auth;
 class AlunoController extends Controller
 {
     public function index(Request $request)
-    {
+{
+    $busca = $request->query('busca');
+
+    if (Auth::guard('admin')->check()) {
+        $turnos = ['Manhã', 'Tarde', 'Noite'];
+        $query = Aluno::with('turma');
+    } else {
         $instrutor = Auth::guard('instrutor')->user();
         $turnos = $instrutor->turnos ?? [];
-        $busca = $request->query('busca');
-
-        $query = Aluno::with('turma')
-            ->whereIn('turno', $turnos);
-
-        if ($busca) {
-            $query->where(function($q) use ($busca) {
-                $q->where('nome', 'like', "%{$busca}%")
-                  ->orWhere('email', 'like', "%{$busca}%");
-            });
-        }
-
-        $alunos = $query->orderBy('nome')->get();
-
-        return view('alunos.index', compact('alunos', 'busca', 'turnos'));
+        $query = Aluno::with('turma')->whereIn('turno', $turnos);
     }
+
+    if ($busca) {
+        $query->where(function($q) use ($busca) {
+            $q->where('nome', 'like', "%{$busca}%")
+              ->orWhere('email', 'like', "%{$busca}%");
+        });
+    }
+
+    $alunos = $query->orderBy('nome')->get();
+
+    return view('alunos.index', compact('alunos', 'busca', 'turnos'));
+}
 
     public function edit($id)
     {

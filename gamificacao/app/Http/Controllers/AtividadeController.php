@@ -11,9 +11,13 @@ class AtividadeController extends Controller
 {
     public function index()
     {
-        $atividades = Atividade::where('fk_id_instrutor', Auth::guard('instrutor')->user()->id_instrutor)
-            ->orderBy('data_limite', 'asc')
-            ->get();
+        if (Auth::guard('admin')->check()) {
+            $atividades = Atividade::orderBy('data_limite', 'asc')->get();
+        } else {
+            $atividades = Atividade::where('fk_id_instrutor', Auth::guard('instrutor')->user()->id_instrutor)
+                ->orderBy('data_limite', 'asc')
+                ->get();
+        }
         return view('atividades.index', compact('atividades'));
     }
 
@@ -32,8 +36,14 @@ class AtividadeController extends Controller
             'data_limite' => 'nullable|date',
         ]);
 
+        if (Auth::guard('admin')->check()) {
+            $id_instrutor = $request->fk_id_instrutor;
+        } else {
+            $id_instrutor = Auth::guard('instrutor')->user()->id_instrutor;
+        }
+
         Atividade::create([
-            'fk_id_instrutor' => Auth::guard('instrutor')->user()->id_instrutor,
+            'fk_id_instrutor' => $id_instrutor,
             'titulo' => $request->titulo,
             'descricao' => $request->descricao,
             'pontos' => $request->pontos,
@@ -63,33 +73,35 @@ class AtividadeController extends Controller
     {
         $entrega = Entrega::findOrFail($id);
         $entrega->update(['status' => 'confirmado']);
-
         $aluno = Aluno::findOrFail($entrega->fk_id_aluno);
         $aluno->update(['pontos' => $aluno->pontos + $entrega->atividade->pontos]);
-
         return back()->with('success', 'Entrega confirmada e pontos adicionados!');
     }
 
     public function marcarPresenca(Request $request, $id)
     {
         $entrega = Entrega::findOrFail($id);
-        $entrega->update(['presenca' => !$entrega->presenca]);
-
-        // Atualiza frequencia do aluno
         $aluno = Aluno::findOrFail($entrega->fk_id_aluno);
-        if ($entrega->presenca) {
-            $aluno->update(['frequencia' => $aluno->frequencia + 1]);
-        } else {
-            $aluno->update(['frequencia' => max(0, $aluno->frequencia - 1)]);
-        }
 
+        if ($entrega->presenca) {
+            $entrega->update(['presenca' => false]);
+            $aluno->update([
+                'frequencia' => max(0, $aluno->frequencia - 1),
+                'pontos' => max(0, $aluno->pontos - 2),
+            ]);
+        } else {
+            $entrega->update(['presenca' => true]);
+            $aluno->update([
+                'frequencia' => $aluno->frequencia + 1,
+                'pontos' => $aluno->pontos + 2,
+            ]);
+        }
         return back()->with('success', 'Presença atualizada!');
     }
 
     public function entregar($id)
     {
         $aluno = Auth::guard('web')->user();
-
         $jaEntregou = Entrega::where('fk_id_atividade', $id)
             ->where('fk_id_aluno', $aluno->id_aluno)
             ->first();
