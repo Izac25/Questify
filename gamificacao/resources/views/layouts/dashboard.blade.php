@@ -487,8 +487,8 @@
 
         [data-theme="light"] select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231d4ed8' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-color: #2d7ce2;
-            color: black;
+            background-color: var(--select-bg);
+            color: black !important;
             appearance: none;
             -webkit-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a855f7' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
