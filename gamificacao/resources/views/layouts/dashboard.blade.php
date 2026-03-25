@@ -111,12 +111,12 @@
             --btn-gradient: linear-gradient(135deg, #1d4ed8, #2563eb);
             --btn-shadow: rgba(37,99,235,0.5);
             --btn-danger: linear-gradient(135deg, #dc2626, #b91c1c);
-            --btn-admin: linear-gradient(135deg, #b45309, #d97706);
+            --btn-admin: linear-gradient(135deg, #1d4ed8, #3764e0);
 
             --avatar-border: #2563eb;
             --avatar-shadow: rgba(37,99,235,0.35);
-            --avatar-admin-border: #d97706;
-            --avatar-admin-shadow: rgba(217,119,6,0.4);
+            --avatar-admin-border: #1d4ed8;
+            --avatar-admin-shadow: #1d4ed8;
 
             --notif-bg: #ffffff;
             --notif-border: rgba(37,99,235,0.25);
@@ -244,7 +244,7 @@
         }
 
         .btn-admin:hover {
-            box-shadow: 0 0 20px rgba(217,119,6,0.6) !important;
+            box-shadow: 0 0 20px #1d4ed8 !important;
         }
 
         /* =====================
@@ -345,11 +345,26 @@
             transition: border-color 0.4s, box-shadow 0.4s;
         }
 
-        .avatar-admin {
+        .avatar-admin [data-theme="light"] {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #b45309, #d97706);
+            background: linear-gradient(135deg, #1d4ed8, #1d4ed8) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: bold;
+            border: 3px solid #1c49c5;
+            box-shadow: 0 0 20px var(--avatar-admin-shadow);
+        }
+
+        .avatar-admin  {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #b45309, #b45309);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -472,6 +487,15 @@
 
         [data-theme="light"] select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231d4ed8' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-color: var(--select-bg);
+            color: black !important;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a855f7' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 38px;
+            cursor: pointer;
         }
 
         select option {
@@ -744,7 +768,7 @@
                 @php $usuario = Auth::guard('admin')->user(); @endphp
                 <div class="avatar-admin">⚙️</div>
                 <div class="sidebar-nome">{{ $usuario->nome }}</div>
-                <div class="sidebar-info" style="color: #d97706; opacity: 1;">Admin</div>
+                <div class="sidebar-info" style="color: #1d4ed8; opacity: 1;">Admin</div>
 
             @elseif(Auth::guard('instrutor')->check())
                 @php $usuario = Auth::guard('instrutor')->user(); @endphp

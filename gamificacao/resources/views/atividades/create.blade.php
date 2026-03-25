@@ -41,7 +41,7 @@
         </div>
 
         <div class="input-group">
-            <input type="date" name="data_limite" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
+            <input type="date" name="data_limite" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); outline: none;">
             <small class="password-info">Data limite (opcional)</small>
         </div>
 
