@@ -26,8 +26,8 @@
 </div>
 
 <div class="input-group">
-    <select name="fk_id_turma" required style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
-        <option value="" style="background: #1e1b4b;">Selecione sua Turma</option>
+    <select name="fk_id_turma" required style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);  outline: none;">
+        <option class="black-tema" value="" style="background: #f7f7f7;">Selecione sua Turma</option>
         @foreach($turmas as $turma)
             <option value="{{ $turma->id_turma }}" style="background: #1e1b4b;">
                 {{ $turma->nome }} - {{ $turma->sala }} ({{ $turma->turno }})
@@ -46,7 +46,7 @@
 </div>
 
 <div class="input-group">
-    <input type="file" name="foto" accept="image/*" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
+    <input type="file" name="foto" accept="image/*" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);  outline: none;">
     <small class="password-info">Foto de perfil (opcional)</small>
 </div>
 

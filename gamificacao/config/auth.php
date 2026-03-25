@@ -1,5 +1,7 @@
 <?php
+
 return [
+
     'defaults' => [
         'guard' => 'web',
         'passwords' => 'alunos',
@@ -40,9 +42,22 @@ return [
             'provider' => 'alunos',
             'table' => 'password_reset_tokens',
             'expire' => 60,
-            'throttle' => 60,
+            'throttle' => 1, // <--- ALTERADO PARA 1 (Sem espera para testes)
+        ],
+        'instrutors' => [
+            'provider' => 'instrutors',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 1,
+        ],
+        'admins' => [
+            'provider' => 'admins',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 1,
         ],
     ],
 
     'password_timeout' => 10800,
+
 ];
