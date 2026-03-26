@@ -54,7 +54,7 @@
 
             {{-- Link para Recuperar Senha --}}
             <div class="forgot-password-link" style="margin-bottom: 15px; text-align: right;">
-                <a href="{{ route('password.request') }}" style="font-size: 0.8rem; color: #ece9e9;">
+                <a href="{{ route('password.request') }}" style="font-size: 0.8rem; color: #39a5e0;">
                     Esqueceu sua senha?
                 </a>
             </div>
