@@ -165,3 +165,17 @@ Route::middleware('auth:admin')->group(function () {
     Route::put('/admin/turmas/{id}', [AdminController::class, 'atualizarTurma']);
     Route::delete('/admin/turmas/{id}', [AdminController::class, 'deletarTurma']);
 });
+
+// Rotas do instrutor (autenticadas)
+Route::middleware('auth:instrutor')->group(function () {
+    
+    // Usar o middleware aqui ↓
+    Route::get('/turmas/{id_turma}', [TurmaController::class, 'show'])
+        ->middleware('verifica.turno');
+    
+    Route::post('/turmas', [TurmaController::class, 'store']);
+    Route::put('/turmas/{id_turma}', [TurmaController::class, 'update'])
+        ->middleware('verifica.turno');
+    Route::delete('/turmas/{id_turma}', [TurmaController::class, 'destroy'])
+        ->middleware('verifica.turno');
+});

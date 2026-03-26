@@ -60,12 +60,19 @@
                 <div class="input-group">
                     <label style="font-family: 'Orbitron', sans-serif; font-size: 12px; color: #a855f7; display: block; margin-bottom: 12px;">TURNOS QUE LECIONA</label>
                     <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                        @foreach(['Manhã', 'Tarde', 'Noite'] as $turno)
+                        @php
+                            $turnosDisponiveis = [
+                                'manhã' => 'Manhã',
+                                'tarde' => 'Tarde',
+                                'noite' => 'Noite'
+                            ];
+                        @endphp
+                        @foreach($turnosDisponiveis as $valor => $label)
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 18px;">
-                            <input type="checkbox" name="turnos[]" value="{{ $turno }}"
+                            <input type="checkbox" name="turnos[]" value="{{ $valor }}"
                                 style="width: auto; padding: 0; accent-color: #a855f7;"
-                                {{ is_array($instrutor->turnos) && in_array($turno, $instrutor->turnos) ? 'checked' : '' }}>
-                            <span style="font-size: 14px;">{{ $turno }}</span>
+                                {{ is_array($instrutor->turnos) && in_array($valor, $instrutor->turnos) ? 'checked' : '' }}>
+                            <span style="font-size: 14px;">{{ $label }}</span>
                         </label>
                         @endforeach
                     </div>

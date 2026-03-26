@@ -14,6 +14,7 @@ class Atividade extends Model
 
     protected $fillable = [
         'fk_id_instrutor',
+        'fk_id_turma',
         'titulo',
         'descricao',
         'pontos',
@@ -24,6 +25,11 @@ class Atividade extends Model
     public function instrutor()
     {
         return $this->belongsTo(Instrutor::class, 'fk_id_instrutor', 'id_instrutor');
+    }
+
+    public function turma()
+    {
+        return $this->belongsTo(Turma::class, 'fk_id_turma', 'id_turma');
     }
 
     public function entregas()

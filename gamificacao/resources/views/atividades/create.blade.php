@@ -20,28 +20,36 @@
         @csrf
 
         <div class="input-group">
-            <input type="text" name="titulo" placeholder="Título da Atividade" required>
+            <input type="text" name="titulo" placeholder="Título da Atividade" required value="{{ old('titulo') }}">
         </div>
 
         <div class="input-group">
-            <textarea name="descricao" placeholder="Descrição (opcional)" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none; resize: vertical; min-height: 100px;"></textarea>
+            <textarea name="descricao" placeholder="Descrição (opcional)" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none; resize: vertical; min-height: 100px;">{{ old('descricao') }}</textarea>
         </div>
 
         <div class="input-group">
-            <input type="number" name="pontos" placeholder="Pontos" min="0" required>
+            <input type="number" name="pontos" placeholder="Pontos" min="0" required value="{{ old('pontos') }}">
         </div>
 
+        <!-- Nova seleção de Turma -->
         <div class="input-group">
-            <select name="turno" required style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
-                <option value="" style="background: #1e1b4b;">Selecione o Turno</option>
-                <option value="Manhã" style="background: #1e1b4b;">Manhã</option>
-                <option value="Tarde" style="background: #1e1b4b;">Tarde</option>
-                <option value="Noite" style="background: #1e1b4b;">Noite</option>
+            <select name="fk_id_turma" required style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: white; outline: none;">
+                <option value="" style="background: #1e1b4b;">Selecione a Turma/Sala</option>
+                @forelse($turmas as $turma)
+                    <option value="{{ $turma->id_turma }}" style="background: #1e1b4b;" {{ old('fk_id_turma') == $turma->id_turma ? 'selected' : '' }}>
+                        {{ $turma->nome }} - {{ $turma->sala }} ({{ $turma->turno }})
+                    </option>
+                @empty
+                    <option value="" style="background: #1e1b4b;">Nenhuma turma disponível</option>
+                @endforelse
             </select>
+            <small class="password-info" style="margin-top: 5px; color: rgba(255,255,255,0.6);">
+                Apenas turmas dos seus turnos permitidos aparecem aqui
+            </small>
         </div>
 
         <div class="input-group">
-            <input type="date" name="data_limite" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); outline: none;">
+            <input type="date" name="data_limite" style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); outline: none;" value="{{ old('data_limite') }}">
             <small class="password-info">Data limite (opcional)</small>
         </div>
 

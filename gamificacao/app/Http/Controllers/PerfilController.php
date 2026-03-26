@@ -45,34 +45,36 @@ class PerfilController extends Controller
         return view('perfil.edit_instrutor', compact('instrutor'));
     }
 
- public function updateInstrutor(Request $request)
-{
-    $request->validate([
-        'nome' => 'required|string|max:255',
-        'senha' => 'nullable|min:6|confirmed',
-        'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        'turnos' => 'required|array|min:1',
-        'turnos.*' => 'in:Manhã,Tarde,Noite',
-    ]);
+    public function updateInstrutor(Request $request)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'senha' => 'nullable|min:6|confirmed',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'turnos' => 'required|array|min:1',
+            'turnos.*' => 'in:manhã,tarde,noite',
+        ]);
 
-    $instrutor = \App\Models\Instrutor::findOrFail(Auth::guard('instrutor')->user()->id_instrutor);
-    $dados = [
-        'nome' => $request->nome,
-        'turnos' => $request->turnos,
-    ];
+        $instrutor = \App\Models\Instrutor::findOrFail(Auth::guard('instrutor')->user()->id_instrutor);
+        $dados = [
+            'nome' => $request->nome,
+            'turnos' => $request->turnos,
+        ];
 
-    if ($request->hasFile('foto')) {
-        $fotoPath = $request->file('foto')->store('fotos', 'public');
-        $dados['foto'] = $fotoPath;
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('fotos', 'public');
+            $dados['foto'] = $fotoPath;
+        }
+
+        if ($request->senha) {
+            $dados['senha'] = Hash::make($request->senha);
+        }
+
+        $instrutor->update($dados);
+        
+        // Recarregar o usuário autenticado
+        Auth::guard('instrutor')->setUser($instrutor->fresh());
+
+        return redirect('/dashboard')->with('success', 'Perfil atualizado com sucesso!');
     }
-
-    if ($request->senha) {
-        $dados['senha'] = Hash::make($request->senha);
-    }
-
-    $instrutor->update($dados);
-    Auth::guard('instrutor')->setUser($instrutor->fresh());
-
-    return redirect('/dashboard')->with('success', 'Perfil atualizado com sucesso!');
-}
 }

@@ -5,8 +5,11 @@ use Illuminate\Http\Request;
 use App\Models\Atividade;
 use App\Models\Entrega;
 use App\Models\Aluno;
+use App\Models\Turma;
+use App\Models\Instrutor;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Notificar;
+use App\Events\NotificacaoAluno; // Adicionado o import do Evento
 
 class AtividadeController extends Controller
 {
@@ -24,7 +27,20 @@ class AtividadeController extends Controller
 
     public function create()
     {
-        return view('atividades.create');
+        // Buscar o instrutor autenticado
+        $instrutor = Auth::guard('instrutor')->user();
+        
+        if (!$instrutor) {
+            return redirect('/login')->with('error', 'Você precisa estar autenticado');
+        }
+
+        // Pegar apenas as turmas do instrutor nos turnos permitidos
+        $turnosPermitidos = $instrutor->turnos ?? [];
+        $turmas = Turma::where('fk_id_instrutor', $instrutor->id_instrutor)
+            ->whereIn('turno', $turnosPermitidos)
+            ->get();
+
+        return view('atividades.create', compact('turmas', 'turnosPermitidos'));
     }
 
     public function store(Request $request)
@@ -33,7 +49,7 @@ class AtividadeController extends Controller
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'pontos' => 'required|integer|min:0',
-            'turno' => 'required|string',
+            'fk_id_turma' => 'required|integer|exists:turmas,id_turma',
             'data_limite' => 'nullable|date',
         ]);
 
@@ -43,12 +59,30 @@ class AtividadeController extends Controller
             $id_instrutor = Auth::guard('instrutor')->user()->id_instrutor;
         }
 
+        // Buscar a turma selecionada
+        $turma = Turma::findOrFail($request->fk_id_turma);
+
+        // Verificar se a turma pertence ao instrutor
+        if ($turma->fk_id_instrutor !== $id_instrutor) {
+            return redirect('/atividades')->with('error', 'Você não tem permissão para criar atividades nesta turma!');
+        }
+
+        // Verificar se o instrutor tem permissão para este turno
+        $instrutor = Instrutor::find($id_instrutor);
+        $turnosPermitidos = $instrutor->turnos ?? [];
+
+        if (!in_array($turma->turno, $turnosPermitidos)) {
+            return redirect('/atividades')->with('error', 'Você não tem permissão para criar atividades no turno: ' . $turma->turno);
+        }
+
+        // Criar a atividade
         $atividade = Atividade::create([
             'fk_id_instrutor' => $id_instrutor,
+            'fk_id_turma' => $request->fk_id_turma,
             'titulo' => $request->titulo,
             'descricao' => $request->descricao,
             'pontos' => $request->pontos,
-            'turno' => $request->turno,
+            'turno' => $turma->turno,
             'data_limite' => $request->data_limite,
         ]);
 
@@ -56,18 +90,24 @@ class AtividadeController extends Controller
         $usuario = Auth::guard('admin')->user() ?? Auth::guard('instrutor')->user();
         activity()
             ->causedBy($usuario)
-            ->log('Instrutor "' . $usuario->nome . '" criou a atividade "' . $atividade->titulo . '" — ' . $atividade->pontos . ' pts — Turno: ' . $atividade->turno);
+            ->log('Instrutor "' . $usuario->nome . '" criou a atividade "' . $atividade->titulo . '" — ' . $atividade->pontos . ' pts — Turma: ' . $turma->nome);
 
-        // Notifica todos os alunos do turno
-        $alunos = Aluno::where('turno', $atividade->turno)->get();
+        // Notifica todos os alunos da turma selecionada
+        $alunos = Aluno::where('fk_id_turma', $request->fk_id_turma)->get();
         foreach ($alunos as $aluno) {
+            $msg = 'Nova atividade disponível: "' . $atividade->titulo . '" — ' . $atividade->pontos . ' pts';
+            
+            // Mantém sua notificação atual no site
             Notificar::aluno(
                 $aluno->id_aluno,
-                'Nova atividade disponível: "' . $atividade->titulo . '" — ' . $atividade->pontos . ' pts',
+                $msg,
                 'purple',
                 '📚',
                 0
             );
+
+            // DISPARA O E-MAIL (via Evento que configuramos)
+            event(new NotificacaoAluno($aluno->id_aluno, $msg, 'purple', '📚', $atividade->pontos));
         }
 
         return redirect('/atividades')->with('success', 'Atividade criada com sucesso!');
@@ -91,7 +131,7 @@ class AtividadeController extends Controller
     {
         $atividade = Atividade::findOrFail($id);
         $entregas = Entrega::where('fk_id_atividade', $id)->with('aluno')->get();
-        $alunos = Aluno::where('turno', $atividade->turno)->get();
+        $alunos = Aluno::where('fk_id_turma', $atividade->fk_id_turma)->get();
         return view('atividades.entregas', compact('atividade', 'entregas', 'alunos'));
     }
 
@@ -109,17 +149,23 @@ class AtividadeController extends Controller
             ->causedBy($usuario)
             ->log('Entrega de "' . $aluno->nome . '" na atividade "' . $entrega->atividade->titulo . '" confirmada — +' . $pontos . ' pts');
 
-        // Notifica o aluno
+        $msgConfirmacao = 'Sua entrega de "' . $entrega->atividade->titulo . '" foi confirmada! +' . $pontos . ' pts';
+
+        // Notifica o aluno no site
         Notificar::aluno(
             $aluno->id_aluno,
-            'Sua entrega de "' . $entrega->atividade->titulo . '" foi confirmada! +' . $pontos . ' pts',
+            $msgConfirmacao,
             'green',
             '✅',
             $pontos
         );
 
-        // Verifica badges
-        Notificar::verificarBadges($aluno->fresh());
+        // DISPARA O E-MAIL de confirmação
+        event(new NotificacaoAluno($aluno->id_aluno, $msgConfirmacao, 'green', '✅', $pontos));
+
+        // Verifica badges - recarrega os dados do aluno
+        $alunoAtualizado = Aluno::findOrFail($aluno->id_aluno);
+        Notificar::verificarBadges($alunoAtualizado);
 
         return back()->with('success', 'Entrega confirmada e pontos adicionados!');
     }
@@ -147,8 +193,9 @@ class AtividadeController extends Controller
             ->causedBy($aluno)
             ->log('Aluno "' . $aluno->nome . '" entregou a atividade "' . Atividade::findOrFail($id)->titulo . '"');
 
-        // Verifica badges por atividades entregues
-        Notificar::verificarBadges($aluno->fresh());
+        // Verifica badges por atividades entregues - recarrega os dados do aluno
+        $alunoAtualizado = Aluno::findOrFail($aluno->id_aluno);
+        Notificar::verificarBadges($alunoAtualizado);
 
         // Notifica o instrutor
         $atividade = Atividade::findOrFail($id);
